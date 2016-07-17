@@ -1,0 +1,54 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    awesome_print (1.7.0)
+    diff-lcs (1.2.5)
+    file_utils (1.1.2)
+    gemcutter (0.7.1)
+    gemspec_deps_gen (1.1.2)
+      bundler
+      file_utils
+    highline (1.7.8)
+    json_pure (1.8.3)
+    mini_portile2 (2.1.0)
+    nokogiri (1.6.8)
+      mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
+    pkg-config (1.1.7)
+    resource_accessor (1.2.6)
+    rspec (3.5.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+    rspec-core (3.5.1)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-mocks (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
+    ruby-progressbar (1.8.1)
+    thor (0.19.1)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  awesome_print
+  gemcutter (~> 0.7)
+  gemspec_deps_gen (~> 1.1)
+  highline (~> 1.7, >= 1.7.8)
+  json_pure (~> 1.8)
+  nokogiri (~> 1.6, >= 1.6.8)
+  resource_accessor (~> 1.2)
+  rspec
+  ruby-progressbar (~> 1.8, >= 1.8.1)
+  thor (~> 0.19)
+
+RUBY VERSION
+   ruby 2.3.1p112
+
+BUNDLED WITH
+   1.12.5

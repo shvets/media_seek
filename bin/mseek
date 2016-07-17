@@ -1,0 +1,7 @@
+#!/usr/bin/env ruby
+
+$:.unshift(File::join(File::dirname(File::dirname(__FILE__)), "lib"))
+
+require 'media_seek/media_seek_cli'
+
+MediaSeekCLI.start
