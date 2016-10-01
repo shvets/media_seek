@@ -9,6 +9,7 @@ group :default do
   gem "ruby-progressbar", '~> 1.8', '>= 1.8.1'
   # gem "ncurses-ruby"
   gem "highline", '~> 1.7', '>= 1.7.8'
+  gem "script_executor", "~> 1.7.7"
 end
 
 group :development do

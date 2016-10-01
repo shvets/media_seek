@@ -139,8 +139,16 @@ RSpec.describe GidOnlineService do
     end
   end
 
+  it "checks if media is serial" do
+    url = "http://gidonline.club/2016/07/priklyucheniya-vudi-i-ego-druzej/"
+
+    result = subject.is_serial(url)
+
+    ap result
+  end
+
   it 'searches' do
-    query = 'красный'
+    query = 'вуди'
 
     result = subject.search(query)
 

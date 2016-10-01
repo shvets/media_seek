@@ -4,6 +4,7 @@ require 'uri'
 require 'json'
 require 'base64'
 require 'ruby-progressbar'
+require 'script_executor'
 
 require 'common/http_service'
 
@@ -176,7 +177,7 @@ class GidOnlineService < HttpService
   end
 
   def retrieve_urls(url, season=nil, episode=nil)
-    unless url.index(URL)
+    unless url.index(URL) or url.index("http://")
       url = URL + url
     end
 
@@ -374,26 +375,99 @@ class GidOnlineService < HttpService
     url = get_page_path(URL, page) + "?s=" + query
 
     response = http_request(url: url)
-    content = response.body
-    document = to_document(content)
 
-    movies = get_movies(document, url)
+    if [Net::HTTPMovedPermanently, Net::HTTPFound].include? response.class
+      location = response['location']
 
-    if movies[:items].size > 0
-      movies
+      if URI(location).scheme
+        new_uri = URI(location)
+      else
+        new_uri = URI(url)
+        new_uri.path = location
+      end
+
+      url = new_uri.to_s
+
+      if is_serial(url)
+        document = get_movie_document(url)
+        serial_info = get_serial_info(document)
+
+        puts serial_info
+
+        serial_info['seasons'].each do |season, season_name|
+          name = season_name.gsub(' ', '_')
+
+          FileUtils.mkdir_p(name)
+
+          puts name
+
+          executor = ScriptExecutor.new
+
+          document2 = get_movie_document(url, season, 1)
+          serial_info2 = get_serial_info(document2)
+
+          serial_info2['episodes'].each do |episode, episode_name|
+            puts episode_name
+
+            name2 = name + '/' + episode_name.gsub(' ', '_')
+
+            #FileUtils.mkdir_p(name)
+
+            urls = retrieve_urls(url, season=season, episode=episode)
+
+            url = urls[0][:url]
+
+            puts url
+
+            file_name = name2 + '.mp4'
+
+            unless File.exist?(file_name)
+              executor.execute "ffmpeg -i " + url + ' ' + '-bsf:a aac_adtstoasc -vcodec copy -c copy -crf 50 ' + file_name
+            end
+
+            # ffmpeg -i http://p0.edge02.moonwalk.cc/sec/1469944053/3935323379d2a61bc18b19ac5234078c9fea77a2c8e9cd21/ivs/a9/14/c3a3da9cebf1.mp4/hls/tracks-3,4/index.m3u8 -bsf:a aac_adtstoasc -vcodec copy -c copy -crf 50 file.mp4
+            #break
+          end
+
+        end
+        #
+        # for season in sorted(serial_info['seasons'].keys()):
+      else
+        document = fetch_document(url: url)
+
+        media_data = get_media_data(document)
+
+        {'items': [
+            {
+                type: 'movie',
+                path: new_uri.to_s,
+                name: media_data['title'],
+                thumb: media_data['thumb']
+            }
+        ]}
+      end
     else
-      document = fetch_document(response.url)
+      content = response.body
+      document = to_document(content)
 
-      media_data = get_media_data(document)
+      movies = get_movies(document, url)
 
-      {'items': [
-        {
-          type: 'movie',
-          path: url,
-          name: media_data['title'],
-          thumb: media_data['thumb']
-        }
-      ]}
+      if movies[:items].size > 0
+        movies
+      else
+        document = fetch_document(url: response.url)
+
+        media_data = get_media_data(document)
+
+        {'items': [
+            {
+                type: 'movie',
+                path: url,
+                name: media_data['title'],
+                thumb: media_data['thumb']
+            }
+        ]}
+      end
     end
   end
 
@@ -510,6 +584,22 @@ class GidOnlineService < HttpService
     end
 
     list
+  end
+
+  def is_serial(path)
+    document = get_movie_document(path)
+
+    content = document.to_s
+
+    data = get_session_data(content)
+
+    data and data['content_type'] == 'serial' or has_seasons(path)
+  end
+
+  def has_seasons(url)
+    path = URI(url).path
+
+    get_seasons(path).size > 0
   end
 
   def fix_name(list)

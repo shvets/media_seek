@@ -8,7 +8,12 @@ require 'common/http_service'
 
 class HDSerialsService < HttpService
   URL = 'http://www.hdserials.tv'
-  SESSION_URL = 'http://pandastream.cc/sessions/new'
+  SESSION_URL1 = 'http://pandastream.cc/sessions/create_new'
+  SESSION_URL2 = 'http://pandastream.cc/sessions/new'
+
+  def session_url
+    SESSION_URL1
+  end
 
   def get_page_path(path, page=1)
     if page == 1
